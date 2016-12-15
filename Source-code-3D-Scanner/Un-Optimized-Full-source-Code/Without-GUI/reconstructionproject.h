@@ -200,7 +200,6 @@ protected:
 
     boost::shared_ptr<pcl::PolygonMesh> greedy_triangulation(pcl::PointCloud<pcl::PointNormal>::Ptr input_point_cloud);
     //Create the "tool" function to perform the greedy triangulation
-
 };
 
 #endif // RECONSTRUCTIONPROJECT_H
