@@ -1,5 +1,7 @@
 #include "reconstructionproject.h"
 
+
+
 //-----------------------------------------------------------------------------
 //*********************CONSTRUCTOR AND DESTRUCTOR******************************
 //-----------------------------------------------------------------------------
@@ -206,9 +208,9 @@ ReconstructionProject::smoothing
 
 //***************************NORMAL ESTIMATION FUNCTION************************
 
-pcl :: PointCloud<pcl::PointNormal>::Ptr
-ReconstructionProject::normal_estimation
-(pcl :: PointCloud<pcl :: PointXYZ >:: Ptr input_point_cloud)
+PointCloud< PointNormal > :: Ptr
+ReconstructionProject :: normal_estimation
+(PointCloud< PointXYZ > :: Ptr input_point_cloud)
 {
     /*
      * This "tool" function is used to compute the normal estimation of a point
@@ -217,11 +219,11 @@ ReconstructionProject::normal_estimation
      * point cloud.
      */
 
-    pcl :: NormalEstimationOMP<pcl :: PointXYZ, pcl :: Normal> t_n;
+    NormalEstimationOMP< PointXYZ, Normal > t_n;
     // Create an instance of the class Normal Estimation
 
-    pcl :: PointCloud<pcl :: Normal> :: Ptr t_normals
-            (new pcl :: PointCloud<pcl ::Normal>() ) ;
+    PointCloud<Normal> :: Ptr t_normals
+            (new PointCloud<Normal>() ) ;
     //Read and Create a pointer "t_normals" and reserving space in the memory It's datatype Normal because we'll create a normal point cloud
 
     t_n.setNumberOfThreads (8);
@@ -244,8 +246,8 @@ ReconstructionProject::normal_estimation
     t_n.compute (*t_normals);
     //Compute the Normals from the point cloud
 
-    pcl :: PointCloud<pcl::PointNormal>::Ptr t_output_point_cloud
-            (new pcl::PointCloud<pcl :: PointNormal >) ; ///////////////// should we delete the variable ?
+    PointCloud<PointNormal>::Ptr t_output_point_cloud
+            (new PointCloud<PointNormal >) ; ///////////////// should we delete the variable ?
     //Create a pointer (t_output_point_cloud) of the datatype PointNormal and reserve space on the memory
 
     for (size_t i = 0; i < t_normals->size (); ++i)
@@ -258,7 +260,7 @@ ReconstructionProject::normal_estimation
         t_normals->points[i].normal_z *= -1;
     }
 
-    pcl :: concatenateFields(*t_normals, *input_point_cloud ,
+    concatenateFields(*t_normals, *input_point_cloud ,
                              *t_output_point_cloud);
     //Merging the Normal Estimation output & the point cloud and saved it in "t_output_point_cloud"
 
@@ -268,9 +270,9 @@ ReconstructionProject::normal_estimation
 
 //***************************POISSON ALGORITHM*********************************
 
-boost :: shared_ptr<pcl :: PolygonMesh>
+boost :: shared_ptr<PolygonMesh>
 ReconstructionProject::poisson_algorithm
-(pcl :: PointCloud<pcl::PointNormal>::Ptr input_point_cloud)
+(PointCloud<PointNormal>::Ptr input_point_cloud)
 {
     /*
      * This "tool" function is used to apply the Poisson algorithm, a powerful
@@ -279,14 +281,14 @@ ReconstructionProject::poisson_algorithm
      * as input a normal point cloud and it returns a polygon mesh.
      */
 
-    pcl :: Poisson<pcl :: PointNormal> poisson;
+    Poisson<PointNormal> poisson;
     //Create an object to Poisson of datatype PointNormal
 
     poisson.setDepth (u_octree_depth) ;
     //Set the value of the depth of the octree
 
-    boost :: shared_ptr<pcl :: PolygonMesh> t_triangles
-            (new pcl :: PolygonMesh );                          ///////////////// should we delete the variable ?
+    boost :: shared_ptr<PolygonMesh> t_triangles
+            (new PolygonMesh );                          ///////////////// should we delete the variable ?
     //Create a smart pointer (t_triangles) of datatype PolygonMesh and allocate space on memory
 
     poisson.setInputCloud (input_point_cloud) ;
@@ -301,9 +303,9 @@ ReconstructionProject::poisson_algorithm
 
 //****************************GREEDY TRIANGULATION*****************************
 
-boost :: shared_ptr<pcl :: PolygonMesh>
+boost :: shared_ptr<PolygonMesh>
 ReconstructionProject::greedy_triangulation
-(pcl :: PointCloud<pcl::PointNormal>::Ptr input_point_cloud)
+(PointCloud<PointNormal>::Ptr input_point_cloud)
 {
     /*
      * This "tool" function is used to perform a greedy triangulation, a basic way to
@@ -313,11 +315,11 @@ ReconstructionProject::greedy_triangulation
      * and it returns a polygon mesh.
      */
 
-    pcl :: GreedyProjectionTriangulation<pcl :: PointNormal> gt;
+    GreedyProjectionTriangulation<PointNormal> gt;
     //Create an object to GreedyProjectionTriangulation of datatype PointNormal
 
-    boost :: shared_ptr<pcl :: PolygonMesh> t_triangles
-            (new pcl :: PolygonMesh );                          ///////////////// should we delete the variable ?
+    boost :: shared_ptr<PolygonMesh> t_triangles
+            (new PolygonMesh );                          ///////////////// should we delete the variable ?
     //Create a smart pointer (t_triangles) of datatype PolygonMesh and allocate space on memory
 
     gt.setInputCloud(input_point_cloud);
@@ -355,7 +357,7 @@ ReconstructionProject::greedy_triangulation
 //*******************************CALLED FUNCTION*******************************
 //-----------------------------------------------------------------------------
 
-boost :: shared_ptr<pcl :: PolygonMesh>
+boost :: shared_ptr<PolygonMesh>
 ReconstructionProject::reconstruction(bool method, bool smoothing)
 {
     /*This function is one called in the software to perform the 3D reconstruction
@@ -375,20 +377,20 @@ ReconstructionProject::reconstruction(bool method, bool smoothing)
     }
 
     //*******************************TEST**************************************
-    pcl :: PCLPointCloud2 cloudblob ;
-    pcl :: io :: loadPCDFile ( "C:\\Users\\dreve\\Documents\\VIBOT_LC\\Software Eng\\PCL Project\\PCLEXAMPLES\\untitled8\\chef.pcd" , cloudblob); ///////////////////DELETE !!!!
-    pcl :: PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl :: PointCloud<pcl ::PointXYZ>) ;
-    pcl ::fromPCLPointCloud2(cloudblob, *cloud);
+    PCLPointCloud2 cloudblob ;
+    io :: loadPLYFile ( "C:\\Users\\dreve\\Downloads\\1stmeshscan.ply" , cloudblob); ///////////////////DELETE !!!!
+    PointCloud<PointXYZ>::Ptr cloud (new PointCloud<PointXYZ>) ;
+    fromPCLPointCloud2(cloudblob, *cloud);
     //*****************************END TEST************************************
 
-    pcl :: PointCloud<pcl::PointNormal>::Ptr t_output_point_cloud_normal_estimation
-            (new pcl::PointCloud<pcl :: PointNormal >) ; ///////////////// should we delete the variable ?
+    PointCloud<PointNormal>::Ptr t_output_point_cloud_normal_estimation
+            (new PointCloud<PointNormal >) ; ///////////////// should we delete the variable ?
     //Read and Create a pointer "t_output_point_cloud_normal_estimation" and reserving space in the memory
 
     t_output_point_cloud_normal_estimation = normal_estimation(cloud);
     //Use the "tool" function for computing the normal estimation of the point cloud
 
-    boost :: shared_ptr<pcl :: PolygonMesh> t_output_recon (new pcl :: PolygonMesh );
+    boost :: shared_ptr<PolygonMesh> t_output_recon (new PolygonMesh );
     //Create a smart pointer (t_output_recon) of datatype PolygonMesh and allocate space on memory
 
     if(method == true)

@@ -54,7 +54,7 @@ Refer to the standard.txt to have a deep understanding of variables names and de
 #include <pcl/visualization/pcl_visualizer.h> ///////////////DELETE !!!!
 #include <pcl/io/ply_io.h>              /////////////////////DELETE !!!!
 
-
+using namespace pcl;
 
 /*
   This class was created to achieve 3D Reconstruction, as part of a project to make a 3D Scanner. It
@@ -106,7 +106,7 @@ public:
     ~ReconstructionProject();
     //Destructor
 
-    boost::shared_ptr<pcl::PolygonMesh> reconstruction(bool method, bool smoothing);
+    boost::shared_ptr<PolygonMesh> reconstruction(bool method, bool smoothing);
     //Create the function used in the software to do the 3D Reconstruction using the "tool" functions
 
     unsigned int getU_octree_depth() const;
@@ -192,13 +192,13 @@ protected:
     void smoothing();
     //Create the "tool" function to do the smoothing
 
-    pcl::PointCloud<pcl::PointNormal>::Ptr normal_estimation(pcl::PointCloud<pcl::PointXYZ>::Ptr input_point_cloud);
+    PointCloud<PointNormal>::Ptr normal_estimation(PointCloud<PointXYZ>::Ptr input_point_cloud);
     //Create the "tool" function to do the normal estimation
 
-    boost::shared_ptr<pcl::PolygonMesh> poisson_algorithm(pcl::PointCloud<pcl::PointNormal>::Ptr input_point_cloud);
+    boost::shared_ptr<PolygonMesh> poisson_algorithm(PointCloud<PointNormal>::Ptr input_point_cloud);
     //Create the "tool" function to perform the Poisson algorithm
 
-    boost::shared_ptr<pcl::PolygonMesh> greedy_triangulation(pcl::PointCloud<pcl::PointNormal>::Ptr input_point_cloud);
+    boost::shared_ptr<PolygonMesh> greedy_triangulation(PointCloud<PointNormal>::Ptr input_point_cloud);
     //Create the "tool" function to perform the greedy triangulation
 };
 
