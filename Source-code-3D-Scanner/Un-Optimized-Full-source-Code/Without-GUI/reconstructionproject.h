@@ -44,7 +44,7 @@ Refer to the standard.txt to have a deep understanding of variables names and de
 #include <pcl/search/kdtree.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/PCLPointCloud2.h>
-#include <pcl/surface/vtk_smoothing/vtk_mesh_smoothing_laplacian.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/surface/poisson.h>
 #include <pcl/surface/gp3.h>
 #include <pcl/features/normal_3d_omp.h>
@@ -90,6 +90,11 @@ using namespace pcl;
         setU_max_angle :: Mutator for the u_max_angle parameter
         getU_normal_consistency :: Accessor for the u_normal_consistency parameter
         setU_normal_consistency :: Mutator for the u_normal_consistency parameter
+        getU_MeanK :: Accessor for the u_MeanK parameter
+        setU_MeanK :: Mutator for the u_MeanK parameter
+        getU_StddevMulThresh :: Accessor for the u_StddevMulThresh parameter
+        setU_StddevMulThresh :: Mutator for the u_StddevMulThresh parameter
+        smoothing_sor :: Apply a statistical outlier removal filter on the point cloud
         normal_estimation :: Compute the normal estimation needed Poisson and the Greedy Triangulation
         poisson_algorithm :: Create a 3D Mesh using the Poisson Algorithm from a point cloud
         greedy_triangulation :: Create a 3D Mesh using the Greedy Triangulation method from a point cloud
@@ -157,7 +162,27 @@ public:
     void setU_normal_consistency(bool value);
     //Mutator for the u_normal_consistency parameter
 
+    unsigned int getU_MeanK() const;
+    //Accessor for the u_MeanK parameter
+
+    void setU_MeanK(unsigned int value);
+    //Mutator for the u_MeanK parameter
+
+    float getU_StddevMulThresh() const;
+    //Accessor for the u_StddevMulThresh parameter
+
+    void setU_StddevMulThresh(float value);
+    //Mutator for the u_StddevMulThresh parameter
+
 private:
+
+    //*******************SMOOTHING SOR****************************
+
+    unsigned int u_MeanK;
+    //Create the variable to define the number of neighbors to analyze for the smoothing
+
+    float u_StddevMulThresh;
+    //Create the variable to define the maximum Standard deviation accepted
 
     //*******************POISSON ALGORITHM************************
 
@@ -189,7 +214,7 @@ private:
 
 protected:
 
-    void smoothing();
+    PointCloud<PointXYZ>::Ptr smoothing_sor(PointCloud<PointXYZ>::Ptr input_point_cloud);
     //Create the "tool" function to do the smoothing
 
     PointCloud<PointNormal>::Ptr normal_estimation(PointCloud<PointXYZ>::Ptr input_point_cloud);

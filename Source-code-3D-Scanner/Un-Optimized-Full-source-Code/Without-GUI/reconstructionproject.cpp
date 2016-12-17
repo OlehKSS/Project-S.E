@@ -15,7 +15,7 @@ ReconstructionProject::ReconstructionProject()
     u_octree_depth = 10;
     //Set the default value for the u_octree_depth variable
 
-    u_radius_search = 0.25;
+    u_radius_search = 0.8;
     //Set the default value for the u_radius_search variable
 
     u_mu = 10;
@@ -35,6 +35,12 @@ ReconstructionProject::ReconstructionProject()
 
     u_normal_consistency = false;
     //Set the default value for the u_normal_consistency variable
+
+    u_MeanK = 50;
+    //Set the default value for the u_MeanK variable
+
+    u_StddevMulThresh = 1.0;
+    //Set the default value for the u_StddevMulThresh variable
 }
 
 ReconstructionProject::~ReconstructionProject()
@@ -192,19 +198,81 @@ void ReconstructionProject::setU_normal_consistency(bool value)
     u_normal_consistency = value;
 }
 
+unsigned int ReconstructionProject::getU_MeanK() const
+{
+    /*
+     * Accessor for the u_normal_consistency parameter
+     */
+
+    return u_MeanK;
+}
+
+void ReconstructionProject::setU_MeanK(unsigned int value)
+{
+    /*
+     * Mutator for the u_MeanK parameter
+     */
+
+    u_MeanK = value;
+}
+
+float ReconstructionProject::getU_StddevMulThresh() const
+{
+    /*
+     * Accessor for the u_StddevMulThresh parameter
+     */
+
+    return u_StddevMulThresh;
+}
+
+void ReconstructionProject::setU_StddevMulThresh(float value)
+{
+    /*
+     * Mutator for the u_StddevMulThresh parameter
+     */
+
+    u_StddevMulThresh = value;
+}
+
 //-----------------------------------------------------------------------------
 //*******************************"TOOL" FUNCTIONS******************************
 //-----------------------------------------------------------------------------
 
 //******************************SMOOTHING FUNCTION*****************************
 
-/*pcl :: PointCloud<pcl :: PointXYZ >:: Ptr
-ReconstructionProject::smoothing
-(pcl :: PointCloud<pcl :: PointXYZ >:: Ptr)
+PointCloud<pcl :: PointXYZ >:: Ptr
+ReconstructionProject::smoothing_sor
+(PointCloud<PointXYZ >:: Ptr input_point_cloud)
 {
+    /*
+     * This "tool" function is used to apply a statistical outlier removal filter on the
+     * point cloud before processing, if the user want it. It permits to remove all the
+     * noisy points that can stay around the mesh after the ICP. We need in input a XYZ
+     * point cloud and it returns us a XYZ point cloud.
+     */
 
+    PointCloud<PointXYZ>::Ptr t_cloud_filtered (new PointCloud<PointXYZ>);
+    //Read and Create a pointer "t_cloud_filtered" and reserving space in the memory
+
+    StatisticalOutlierRemoval<PointXYZ> sor;
+    // Create an instance of the class Statistical Outlier Removal
+
+    sor.setInputCloud (input_point_cloud);
+    //Insert the wanted point cloud as an input to the Statistical Outlier Removal Filter
+
+    sor.setMeanK (u_MeanK);
+    //Set the number of neighbors to analyze
+
+    sor.setStddevMulThresh (u_StddevMulThresh);
+    //Set the maximum Standard deviation accepted
+
+    sor.filter (*t_cloud_filtered);
+    //Apply the Statistical Outlier Removal Filter
+
+    return t_cloud_filtered;
+    //Return the filtered point cloud
 }
-*/
+
 
 //***************************NORMAL ESTIMATION FUNCTION************************
 
@@ -368,17 +436,10 @@ ReconstructionProject::reconstruction(bool method, bool smoothing)
      * polygon mesh.
      */
 
-    if(smoothing == true)
-    {
-        //Check if a smoothing is asked by the user in his processing
-
-        //d_icp_pointcloud =   smoothing(d_icp_pointcloud); ////////////////////change by the variable from the database
-        //Use the "tool" function for smoothing to get a smoother point cloud before the processing the 3D reconstruction
-    }
-
     //*******************************TEST**************************************
     PCLPointCloud2 cloudblob ;
-    io :: loadPLYFile ( "C:\\Users\\dreve\\Downloads\\1stmeshscan.ply" , cloudblob); ///////////////////DELETE !!!!
+    io :: loadPLYFile ( "C:\\Users\\dreve\\Downloads\\FinalResult2_mesh.ply" , cloudblob); ///////////////////DELETE !!!!
+    //io :: loadPCDFile ( "C:\\Users\\dreve\\Documents\\VIBOT_LC\\Software Eng\\PCL Project\\PCLEXAMPLES\\untitled8\\chef.pcd" , cloudblob); ///////////////////DELETE !!!!
     PointCloud<PointXYZ>::Ptr cloud (new PointCloud<PointXYZ>) ;
     fromPCLPointCloud2(cloudblob, *cloud);
     //*****************************END TEST************************************
@@ -387,9 +448,27 @@ ReconstructionProject::reconstruction(bool method, bool smoothing)
             (new PointCloud<PointNormal >) ; ///////////////// should we delete the variable ?
     //Read and Create a pointer "t_output_point_cloud_normal_estimation" and reserving space in the memory
 
+    if(smoothing == true)
+    {
+        //Check if a smoothing is asked by the user in his processing
+
+        PointCloud<PointXYZ>::Ptr t_cloud_filtered (new PointCloud<PointXYZ>);
+        //Read and Create a pointer "t_cloud_filtered" and reserving space in the memory
+
+        t_cloud_filtered = smoothing_sor(cloud); ////////////////////change by the variable from the database
+        //Use the "tool" function for smoothing to get a smoother point cloud before the processing the 3D reconstruction
+
+        t_output_point_cloud_normal_estimation = normal_estimation(t_cloud_filtered);
+        //Use the "tool" function for computing the normal estimation of the point cloud
+    }
+
+    else
+    {
+
     t_output_point_cloud_normal_estimation = normal_estimation(cloud);
     //Use the "tool" function for computing the normal estimation of the point cloud
 
+    }
     boost :: shared_ptr<PolygonMesh> t_output_recon (new PolygonMesh );
     //Create a smart pointer (t_output_recon) of datatype PolygonMesh and allocate space on memory
 
