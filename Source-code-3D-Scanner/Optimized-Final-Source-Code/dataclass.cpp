@@ -14,8 +14,6 @@ dataclass:: dataclass(){
     m_depth_zLow=0.1;
     m_depth_zHigh=2.0;
 
-    m_activeStage=0;
-
     m_capturingSpeed=2;
     m_enableCapture=false;
 
@@ -91,16 +89,6 @@ int dataclass::getTtRotationDegrees() const
 void dataclass::setTtRotationDegrees(int ttRotationDegrees)
 {
     m_ttRotationDegrees = ttRotationDegrees;
-}
-
-int dataclass::getActiveStage() const
-{
-    return m_activeStage;
-}
-
-void dataclass::setActiveStage(int activeStage)
-{
-    m_activeStage = activeStage;
 }
 
 int dataclass::getFileReadingState() const
